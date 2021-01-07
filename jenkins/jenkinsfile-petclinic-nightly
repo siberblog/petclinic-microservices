@@ -95,6 +95,33 @@ pipeline {
                             break
                         }
                     }
+
+                    while(true) {
+                        echo "Docker Manager1 is not UP and running yet. Will try to reach again after 10 seconds..."
+                        sleep(10)
+
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-2 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+
+                        if (ip.length() >= 7) {
+                            echo "Docker Grand Master Public Ip Address Found: $ip"
+                            env.MANAGER1_PUBLIC_IP = "$ip"
+                            break
+                        }
+                    }
+
+                    while(true) {
+                        echo "Docker Manager2 is not UP and running yet. Will try to reach again after 10 seconds..."
+                        sleep(10)
+
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-3 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+
+                        if (ip.length() >= 7) {
+                            echo "Docker Grand Master Public Ip Address Found: $ip"
+                            env.MANAGER2_PUBLIC_IP = "$ip"
+                            break
+                        }
+                    }
+
                     while(true) {
                         try{
                             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${GRAND_MASTER_PUBLIC_IP} hostname"
@@ -110,10 +137,10 @@ pipeline {
             }
         }
         
-        stage('7-Wait 10 minutes') {
+        stage('7-Wait 1 minutes') {
             steps {
-                echo "7-Wait 10 minutes"
-                sleep(300)
+                echo "7-Wait 1 minutes"
+                sleep(60)
             }
         }
 
