@@ -81,7 +81,7 @@ pipeline {
             steps {
                 echo 'Creating QA Automation Infrastructure for Dev Environment with Cloudfomation'
                 sh "aws cloudformation create-stack --region ${AWS_REGION} --stack-name ${APP_STACK_NAME} --capabilities CAPABILITY_IAM --template-body file://${CFN_TEMPLATE} --parameters ParameterKey=KeyPairName,ParameterValue=${CFN_KEYPAIR}"
-
+            
                 script {
                     while(true) {
                         echo "Docker Grand Master is not UP and running yet. Will try to reach again after 10 seconds..."
@@ -95,33 +95,6 @@ pipeline {
                             break
                         }
                     }
-
-                    while(true) {
-                        echo "Docker Manager1 is not UP and running yet. Will try to reach again after 10 seconds..."
-                        sleep(10)
-
-                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-2 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
-
-                        if (ip.length() >= 7) {
-                            echo "Docker Grand Master Public Ip Address Found: $ip"
-                            env.MANAGER1_PUBLIC_IP = "$ip"
-                            break
-                        }
-                    }
-
-                    while(true) {
-                        echo "Docker Manager2 is not UP and running yet. Will try to reach again after 10 seconds..."
-                        sleep(10)
-
-                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-3 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
-
-                        if (ip.length() >= 7) {
-                            echo "Docker Grand Master Public Ip Address Found: $ip"
-                            env.MANAGER2_PUBLIC_IP = "$ip"
-                            break
-                        }
-                    }
-
                     while(true) {
                         try{
                             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${GRAND_MASTER_PUBLIC_IP} hostname"
@@ -134,17 +107,132 @@ pipeline {
                         }
                     }
                 }
+            } 
             }
         }
         
-        stage('7-Wait 1 minutes') {
+        stage('7-Wait for accessibility to the all servers') {
             steps {
-                echo "7-Wait 1 minutes"
-                sleep(60)
+                script {
+                    
+                    echo "STEP-1: Checking PUBLIC IP"
+
+                    echo "Checking Swarm Docker Manager-1..."
+                    while(true) {
+                        
+                        sleep(3)
+                        echo -n "."
+
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-2 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+
+                        if (ip.length() >= 7) {
+                            echo "Docker Swarm Manager-1 Public Ip Address Found: $ip"
+                            env.MANAGER1_PUBLIC_IP = "$ip"
+                            break
+                        }
+                    }
+
+                    echo "Checking Swarm Docker Manager-2..."
+                    while(true) {
+                        
+                        sleep(3)
+                        echo -n "."
+
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-3 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+
+                        if (ip.length() >= 7) {
+                            echo "Docker Swarm Manager-2 Public Ip Address Found: $ip"
+                            env.MANAGER2_PUBLIC_IP = "$ip"
+                            break
+                        }
+                    }
+
+                    echo "Checking Swarm Docker Worker-1..."
+                    while(true) {
+                        
+                        sleep(3)
+                        echo -n "."
+
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-4 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+
+                        if (ip.length() >= 7) {
+                            echo "Docker Swarm Worker-1 Public Ip Address Found: $ip"
+                            env.WORKER1_PUBLIC_IP = "$ip"
+                            break
+                        }
+                    }
+
+                    echo "Checking Swarm Docker Worker-2..."
+                    while(true) {
+                        
+                        sleep(3)
+                        echo -n "."
+
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-5 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+
+                        if (ip.length() >= 7) {
+                            echo "Docker Swarm Worker-2 Public Ip Address Found: $ip"
+                            env.WORKER2_PUBLIC_IP = "$ip"
+                            break
+                        }
+                    }
+
+
+
+                    echo "STEP-2: Checking SSH Connection"
+
+                    while(true) {
+                        try{
+                            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${MANAGER1_PUBLIC_IP} hostname"
+                            echo "Docker Swarm Manager-1 is reachable with SSH."
+                            break
+                        }
+                        catch(Exception){
+                            echo "Could not connect to Docker Swarm Manager-1 with SSH, I will try again in 10 seconds"
+                            sleep(10)
+                        }
+                    }
+
+                    while(true) {
+                        try{
+                            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${MANAGER2_PUBLIC_IP} hostname"
+                            echo "Docker Swarm Manager-2 is reachable with SSH."
+                            break
+                        }
+                        catch(Exception){
+                            echo "Could not connect to Docker Swarm Manager-2 with SSH, I will try again in 10 seconds"
+                            sleep(10)
+                        }
+                    }
+
+                    while(true) {
+                        try{
+                            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${WORKER1_PUBLIC_IP} hostname"
+                            echo "Docker Swarm Worker-1 is reachable with SSH."
+                            break
+                        }
+                        catch(Exception){
+                            echo "Could not connect to Docker Swarm Worker-1 with SSH, I will try again in 10 seconds"
+                            sleep(10)
+                        }
+                    }
+
+                    while(true) {
+                        try{
+                            sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${WORKER2_PUBLIC_IP} hostname"
+                            echo "Docker Swarm Worker-2 is reachable with SSH."
+                            break
+                        }
+                        catch(Exception){
+                            echo "Could not connect to Docker Swarm Worker-2 with SSH, I will try again in 10 seconds"
+                            sleep(10)
+                        }
+                    }
+                }
             }
         }
 
-        stage('Create Docker Swarm for QA Automation Build') {
+        stage('8-Create Docker Swarm for QA Automation Build') {
             steps {
                 echo "Setup Docker Swarm for QA Automation Build for ${APP_NAME} App"
                 echo "Update dynamic environment"
@@ -160,7 +248,7 @@ pipeline {
             }
         }
 
-        stage('Deploy App on Docker Swarm'){
+        stage('9-Deploy App on Docker Swarm'){
             steps {
                 echo 'Deploying App on Swarm'
                 sh 'envsubst < docker-compose-swarm-dev.yml > docker-compose-swarm-dev-tagged.yml'
@@ -168,7 +256,7 @@ pipeline {
             }
         }
 
-        stage('Test the Application Deployment'){
+        stage('10-Test the Application Deployment'){
             steps {
                 echo "Check if the ${APP_NAME} app is ready or not"
                 script {
@@ -188,7 +276,7 @@ pipeline {
             }
         }
 
-        stage('Run QA Automation Tests'){
+        stage('11-Run QA Automation Tests'){
             steps {
                 echo "Run the Selenium Functional Test on QA Environment"
                 sh 'ansible-playbook -vvv --connection=local --inventory 127.0.0.1, --extra-vars "workspace=${WORKSPACE} master_public_ip=${GRAND_MASTER_PUBLIC_IP}" ./ansible/playbooks/pb_run_selenium_jobs.yaml'
@@ -198,7 +286,7 @@ pipeline {
 
     post {
         always {
-            echo 'Deleting all local images'
+            echo '12-Deleting all local images'
             sh 'docker image prune -af'
             echo 'Delete the Image Repository on ECR'
             sh """
