@@ -81,20 +81,74 @@ pipeline {
             steps {
                 echo 'Creating QA Automation Infrastructure for Dev Environment with Cloudfomation'
                 sh "aws cloudformation create-stack --region ${AWS_REGION} --stack-name ${APP_STACK_NAME} --capabilities CAPABILITY_IAM --template-body file://${CFN_TEMPLATE} --parameters ParameterKey=KeyPairName,ParameterValue=${CFN_KEYPAIR}"
-            
+            } 
+        }
+        
+        stage('7-Wait for accessibility to the all servers') {
+            steps {
                 script {
+                    echo "STEP-1: Checking PUBLIC IP"
+                    
                     while(true) {
                         echo "Docker Grand Master is not UP and running yet. Will try to reach again after 10 seconds..."
-                        sleep(10)
-
                         ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=grand-master Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
-
                         if (ip.length() >= 7) {
-                            echo "Docker Grand Master Public Ip Address Found: $ip"
+                            echo "Docker Swarm Grand MAster Public Ip Address Found: $ip"
                             env.GRAND_MASTER_PUBLIC_IP = "$ip"
                             break
                         }
+                        sleep(10)
                     }
+
+                    while(true) {
+                        echo "Checking Swarm Docker Manager-1"
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-2 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+                        if (ip.length() >= 7) {
+                            echo "Docker Swarm Manager-1 Public Ip Address Found: $ip"
+                            env.MANAGER1_PUBLIC_IP = "$ip"
+                            break
+                        }
+                        sleep(3)
+                    }
+
+                    while(true) {
+                        echo "Checking Swarm Docker Manager-2"
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-3 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+
+                        if (ip.length() >= 7) {
+                            echo "Docker Swarm Manager-2 Public Ip Address Found: $ip"
+                            env.MANAGER2_PUBLIC_IP = "$ip"
+                            break
+                        }
+                        sleep(3)
+                    }
+
+                    while(true) {
+                        echo "Checking Swarm Docker Worker-1..."
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-4 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+                        if (ip.length() >= 7) {
+                            echo "Docker Swarm Worker-1 Public Ip Address Found: $ip"
+                            env.WORKER1_PUBLIC_IP = "$ip"
+                            break
+                        }
+                        sleep(3)
+                    }
+                   
+                    while(true) {
+                        echo "Checking Swarm Docker Worker-2..."
+                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-5 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+
+                        if (ip.length() >= 7) {
+                            echo "Docker Swarm Worker-2 Public Ip Address Found: $ip"
+                            env.WORKER2_PUBLIC_IP = "$ip"
+                            break
+                        }
+                        sleep(3)
+                    }
+
+
+                    echo "STEP-2: Checking SSH Connection"
+                    
                     while(true) {
                         try{
                             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${GRAND_MASTER_PUBLIC_IP} hostname"
@@ -106,62 +160,7 @@ pipeline {
                             sleep(10)
                         }
                     }
-                }
-            } 
-        }
-        
-        stage('7-Wait for accessibility to the all servers') {
-            steps {
-                script {
-                    echo "STEP-1: Checking PUBLIC IP"
-                    echo "Checking Swarm Docker Manager-1..."
-                    while(true) {
-                        sleep(3)
-                        sh "echo -n '.'"
-                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-2 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
-                        if (ip.length() >= 7) {
-                            echo "Docker Swarm Manager-1 Public Ip Address Found: $ip"
-                            env.MANAGER1_PUBLIC_IP = "$ip"
-                            break
-                        }
-                    }
-                    echo "Checking Swarm Docker Manager-2..."
-                    while(true) {
-                        sleep(3)
-                        sh "echo -n '.'"
 
-                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-3 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
-
-                        if (ip.length() >= 7) {
-                            echo "Docker Swarm Manager-2 Public Ip Address Found: $ip"
-                            env.MANAGER2_PUBLIC_IP = "$ip"
-                            break
-                        }
-                    }
-                    echo "Checking Swarm Docker Worker-1..."
-                    while(true) {
-                        sleep(3)
-                        sh "echo -n '.'"
-                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-4 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
-                        if (ip.length() >= 7) {
-                            echo "Docker Swarm Worker-1 Public Ip Address Found: $ip"
-                            env.WORKER1_PUBLIC_IP = "$ip"
-                            break
-                        }
-                    }
-                    echo "Checking Swarm Docker Worker-2..."
-                    while(true) {
-                        sleep(3)
-                        sh "echo -n '.'"
-                        ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-5 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
-
-                        if (ip.length() >= 7) {
-                            echo "Docker Swarm Worker-2 Public Ip Address Found: $ip"
-                            env.WORKER2_PUBLIC_IP = "$ip"
-                            break
-                        }
-                    }
-                    echo "STEP-2: Checking SSH Connection"
                     while(true) {
                         try{
                             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${MANAGER1_PUBLIC_IP} hostname"
