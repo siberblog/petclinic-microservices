@@ -126,10 +126,8 @@ pipeline {
                             break
                         }
                     }
-
                     echo "Checking Swarm Docker Manager-2..."
                     while(true) {
-                        
                         sleep(3)
                         sh "echo -n '.'"
 
@@ -141,28 +139,21 @@ pipeline {
                             break
                         }
                     }
-
                     echo "Checking Swarm Docker Worker-1..."
                     while(true) {
-                        
                         sleep(3)
                         sh "echo -n '.'"
-
                         ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-4 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
-
                         if (ip.length() >= 7) {
                             echo "Docker Swarm Worker-1 Public Ip Address Found: $ip"
                             env.WORKER1_PUBLIC_IP = "$ip"
                             break
                         }
                     }
-
                     echo "Checking Swarm Docker Worker-2..."
                     while(true) {
-                        
                         sleep(3)
                         sh "echo -n '.'"
-
                         ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-5 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
 
                         if (ip.length() >= 7) {
@@ -171,11 +162,7 @@ pipeline {
                             break
                         }
                     }
-
-
-
                     echo "STEP-2: Checking SSH Connection"
-
                     while(true) {
                         try{
                             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${MANAGER1_PUBLIC_IP} hostname"
@@ -187,7 +174,6 @@ pipeline {
                             sleep(10)
                         }
                     }
-
                     while(true) {
                         try{
                             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${MANAGER2_PUBLIC_IP} hostname"
@@ -211,7 +197,6 @@ pipeline {
                             sleep(10)
                         }
                     }
-
                     while(true) {
                         try{
                             sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${WORKER2_PUBLIC_IP} hostname"
@@ -298,5 +283,3 @@ pipeline {
         }
     }
 }
-
-
