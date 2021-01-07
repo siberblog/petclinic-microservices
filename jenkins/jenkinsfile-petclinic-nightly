@@ -118,7 +118,7 @@ pipeline {
                     echo "Checking Swarm Docker Manager-1..."
                     while(true) {
                         sleep(3)
-                        echo -n '.'
+                        sh "echo -n '.'"
                         ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-2 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
                         if (ip.length() >= 7) {
                             echo "Docker Swarm Manager-1 Public Ip Address Found: $ip"
@@ -131,7 +131,7 @@ pipeline {
                     while(true) {
                         
                         sleep(3)
-                        echo -n '.'
+                        sh "echo -n '.'"
 
                         ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-3 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
 
@@ -146,7 +146,7 @@ pipeline {
                     while(true) {
                         
                         sleep(3)
-                        echo -n '.'
+                        sh "echo -n '.'"
 
                         ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-4 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
 
@@ -161,7 +161,7 @@ pipeline {
                     while(true) {
                         
                         sleep(3)
-                        echo -n '.'
+                        sh "echo -n '.'"
 
                         ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=docker-instance-5 Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
 
