@@ -100,6 +100,19 @@ pipeline {
                             }
                         }
                     }
+                    steps {
+                        script {
+                            while(true) {
+                                ip = sh(script:"aws ec2 describe-instances --region ${AWS_REGION} --filters Name=tag-value,Values=grand-master Name=tag-value,Values=${APP_STACK_NAME} --query Reservations[*].Instances[*].[PublicIpAddress] --output text", returnStdout:true).trim()
+                                if (ip.length() >= 7) {
+                                    echo "Docker Swarm Grand MAster Public Ip Address Found: $ip"
+                                    env.GRAND_MASTER_PUBLIC_IP = "$ip"
+                                    break
+                                }
+                                sleep(10)
+                            }
+                        }
+                    }
                 }
             }
         }
