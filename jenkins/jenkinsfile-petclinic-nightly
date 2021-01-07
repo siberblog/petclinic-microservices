@@ -85,7 +85,8 @@ pipeline {
         }
         
         stage('7-Wait for accessibility to the all servers') {
-            parallel {
+            steps {
+                parallel {
                 /*stage('Docker Grand Master') { */
                     steps {
                         script {
@@ -231,7 +232,7 @@ pipeline {
                             }
                         }
                     }
-                
+                }
             }
         }
 
