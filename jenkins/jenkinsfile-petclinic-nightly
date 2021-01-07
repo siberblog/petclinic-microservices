@@ -152,15 +152,7 @@ pipeline {
                             }
                             sleep(3)
                         }
-                    }
-                }
-           
 
-                steps {
-                    script {
-    
-                        echo "STEP-2: Checking SSH Connection"
-                        
                         while(true) {
                             try{
                                 sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${GRAND_MASTER_PUBLIC_IP} hostname"
@@ -207,6 +199,7 @@ pipeline {
                                 sleep(10)
                             }
                         }
+
                         while(true) {
                             try{
                                 sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${WORKER2_PUBLIC_IP} hostname"
