@@ -85,7 +85,7 @@ pipeline {
         }
         
         stage('7-Wait for accessibility to the all servers') {
-            parallel (
+            parallel {
                 stage('Docker Grand Master') {
                     steps {
                         script {
@@ -100,23 +100,8 @@ pipeline {
                             }
                         }
                     }
-                    steps {
-                        script {
-                            while(true) {
-                                try{
-                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${GRAND_MASTER_PUBLIC_IP} hostname"
-                                    echo "Docker Grand Master is reachable with SSH."
-                                    break
-                                }
-                                catch(Exception){
-                                    echo "Could not connect to Docker Grand Master with SSH, I will try again in 10 seconds"
-                                    sleep(10)
-                                }
-                            }
-                        }
-                    }
                 }
-            )
+            }
         }
 
         stage('8-Create Docker Swarm for QA Automation Build') {
