@@ -85,7 +85,7 @@ pipeline {
         }
         
         stage('7-Wait for accessibility to the all servers') {
-            parallel {
+            parallel (
                 stage('Docker Grand Master') {
                     steps {
                         script {
@@ -116,7 +116,7 @@ pipeline {
                         }
                     }
                 }
-            }
+            )
         }
 
         stage('8-Create Docker Swarm for QA Automation Build') {
