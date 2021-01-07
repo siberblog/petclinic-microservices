@@ -1,6 +1,6 @@
 # Environment variables
 PATH="$PATH:/usr/local/bin"
-APP_NAME="Petclinic"
+APP_NAME="petclinic"
 CFN_KEYPAIR="siberblog-$APP_NAME-dev-${BUILD_NUMBER}.key"
 CFN_TEMPLATE="./infrastructure/docker-swarm-infrastructure-cfn-template.yml"
 AWS_REGION="us-east-1"
