@@ -86,7 +86,7 @@ pipeline {
         
         stage('7-Wait for accessibility to the all servers') {
             parallel {
-                stage('Docker Grand Master') {
+                /*stage('Docker Grand Master') { */
                     steps {
                         script {
                             while(true) {
@@ -100,9 +100,9 @@ pipeline {
                             }
                         }
                     }
-                }
+                
 
-                stage('Swarm Docker Manager-1') {
+                /*stage('Swarm Docker Manager-1') {*/
                     steps {
                         script {
                             while(true) {
@@ -116,9 +116,9 @@ pipeline {
                             }
                         }
                     }
-                }
+                
 
-                stage('Swarm Docker Manager-2') {
+                /*stage('Swarm Docker Manager-2') {*/
                     steps {
                         script {
                             while(true) {
@@ -132,9 +132,9 @@ pipeline {
                             }
                         }
                     }
-                }
+                
 
-                stage('Swarm Docker Worker-1') {
+                /*stage('Swarm Docker Worker-1') {*/
                     steps {
                         script {
                             while(true) {
@@ -148,9 +148,9 @@ pipeline {
                             }
                         }
                     }
-                }
+                
 
-                stage('Swarm Docker Worker-2') {
+                /*stage('Swarm Docker Worker-2') {*/
                     steps {
                         script {
                             while(true) {
@@ -166,9 +166,9 @@ pipeline {
 
                         
                     }
-                }
+                
 
-                stage('SSH Connection Test') {
+                /*stage('SSH Connection Test') {*/
                     steps {
                         script {
                             while(true) {
@@ -231,7 +231,7 @@ pipeline {
                             }
                         }
                     }
-                }
+                
             }
         }
 
