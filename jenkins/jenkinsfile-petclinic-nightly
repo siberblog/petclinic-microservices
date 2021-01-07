@@ -85,10 +85,8 @@ pipeline {
         }
         
         stage('7-Wait for accessibility to the all servers') {
-            steps {
-                parallel (
-
-                /*stage('Docker Grand Master') { */
+            parallel {
+                stage('Docker Grand Master') {
                     steps {
                         script {
                             while(true) {
@@ -101,10 +99,10 @@ pipeline {
                                 sleep(3)
                             }
                         }
-                    },
-                
+                    }
+                }
 
-                /*stage('Swarm Docker Manager-1') {*/
+                stage('Swarm Docker Manager-1') {
                     steps {
                         script {
                             while(true) {
@@ -117,10 +115,10 @@ pipeline {
                                 sleep(3)
                             }
                         }
-                    },
-                
+                    }
+                }
 
-                /*stage('Swarm Docker Manager-2') {*/
+                stage('Swarm Docker Manager-2') {
                     steps {
                         script {
                             while(true) {
@@ -133,10 +131,10 @@ pipeline {
                                 sleep(3)
                             }
                         }
-                    },
-                
+                    }
+                }
 
-                /*stage('Swarm Docker Worker-1') {*/
+                stage('Swarm Docker Worker-1') {
                     steps {
                         script {
                             while(true) {
@@ -149,10 +147,10 @@ pipeline {
                                 sleep(3)
                             }
                         }
-                    },
-                
+                    }
+                }
 
-                /*stage('Swarm Docker Worker-2') {*/
+                stage('Swarm Docker Worker-2') {
                     steps {
                         script {
                             while(true) {
@@ -165,10 +163,12 @@ pipeline {
                                 sleep(3)
                             }
                         }
-                    },
-                
 
-                /*stage('SSH Connection Test') {*/
+                        
+                    }
+                }
+
+                stage('SSH Connection Test') {
                     steps {
                         script {
                             while(true) {
@@ -231,7 +231,7 @@ pipeline {
                             }
                         }
                     }
-                )
+                }
             }
         }
 
