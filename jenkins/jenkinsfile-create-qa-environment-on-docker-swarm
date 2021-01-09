@@ -107,7 +107,7 @@ pipeline {
                         script {
                             while(true) {
                                 try{
-                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${GRAND_MASTER_PUBLIC_IP} hostname"
+                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR} ec2-user@${GRAND_MASTER_PUBLIC_IP} hostname"
                                     echo "Docker Grand Master is reachable with SSH."
                                     break
                                 }
@@ -119,7 +119,7 @@ pipeline {
 
                             while(true) {
                                 try{
-                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${MANAGER1_PUBLIC_IP} hostname"
+                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR} ec2-user@${MANAGER1_PUBLIC_IP} hostname"
                                     echo "Docker Swarm Manager-1 is reachable with SSH."
                                     break
                                 }
@@ -130,7 +130,7 @@ pipeline {
                             }
                             while(true) {
                                 try{
-                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${MANAGER2_PUBLIC_IP} hostname"
+                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR} ec2-user@${MANAGER2_PUBLIC_IP} hostname"
                                     echo "Docker Swarm Manager-2 is reachable with SSH."
                                     break
                                 }
@@ -142,7 +142,7 @@ pipeline {
 
                             while(true) {
                                 try{
-                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${WORKER1_PUBLIC_IP} hostname"
+                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR} ec2-user@${WORKER1_PUBLIC_IP} hostname"
                                     echo "Docker Swarm Worker-1 is reachable with SSH."
                                     break
                                 }
@@ -154,7 +154,7 @@ pipeline {
 
                             while(true) {
                                 try{
-                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${WORKSPACE}/${CFN_KEYPAIR} ec2-user@${WORKER2_PUBLIC_IP} hostname"
+                                    sh "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ${JENKINS_HOME}/.ssh/${CFN_KEYPAIR} ec2-user@${WORKER2_PUBLIC_IP} hostname"
                                     echo "Docker Swarm Worker-2 is reachable with SSH."
                                     break
                                 }
