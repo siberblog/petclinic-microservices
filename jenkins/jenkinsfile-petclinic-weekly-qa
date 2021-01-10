@@ -4,7 +4,7 @@ pipeline {
         PATH=sh(script:"echo $PATH:/usr/local/bin", returnStdout:true).trim()
         APP_NAME="petclinic"
         APP_REPO_NAME="siberblog-repo/petclinic-app-qa"
-        APP_STACK_NAME="siberblog-petclinic-App-QA-1"
+        APP_STACK_NAME="siberblog-petclinic-App-QA-6"
         CFN_KEYPAIR="siberblog-petclinic-qa.key"
         AWS_ACCOUNT_ID=sh(script:'export PATH="$PATH:/usr/local/bin" && aws sts get-caller-identity --query Account --output text', returnStdout:true).trim()
         AWS_REGION="us-east-1"
