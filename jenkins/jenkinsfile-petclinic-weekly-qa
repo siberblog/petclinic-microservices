@@ -45,9 +45,7 @@ pipeline {
             }
         }
         stage('Build App Docker Images') {
-            echo 'Building App Dev Images'
             steps {
-
                 parallel(
                     a: {
                         docker build --force-rm -t "${IMAGE_TAG_ADMIN_SERVER}" "${WORKSPACE}/spring-petclinic-admin-server"
@@ -80,16 +78,7 @@ pipeline {
                         docker build --force-rm -t "${IMAGE_TAG_PROMETHEUS_SERVICE}" "${WORKSPACE}/docker/prometheus"                     
                     }
                 )
-                
-            
             }
-
-            post {
-                always {
-                    sh 'docker image ls'
-                }
-            }
-                
         }
         stage('Push Images to ECR Repo') {
             steps {
